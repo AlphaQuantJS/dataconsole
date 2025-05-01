@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Check Prettier version
+        run: pnpm prettier --version
+
+      - name: Prettier diff
+        run: |
+          cp src/methods/aggregation/count.js /tmp/before.js
+          pnpm prettier --write src/core/createFrame.js
+          diff -u /tmp/before.js src/core/createFrame.js || true
+
+      - name: Format check (non-blocking)
+        continue-on-error: true
+        run: pnpm format:check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: PR AI Review (local)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.github/actions/pr-codex-local
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload coverage to Codecov
+        if: hashFiles('coverage/lcov.info') != ''
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          fail_ci_if_error: false # <-- это главное
+          verbose: true

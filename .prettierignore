@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+build
+*.log
+*.lock
+.env
+
+
+pnpm-lock.yaml
+
+.eslintcache
+.cache/
+.vscode/
+*.md
