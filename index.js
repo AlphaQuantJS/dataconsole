@@ -6,7 +6,59 @@
 // Debug message to check if script is running
 console.log('DataConsole script started');
 
-import { display, plot, view } from './src/display.js';
+import { display, plot, view, clear, saveAsHTML } from './src/display.js';
+
+// Set up theme toggling
+const setupThemeToggle = () => {
+  const html = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  
+  if (themeToggle) {
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      html.dataset.theme = savedTheme;
+    }
+    
+    // Handle theme toggle
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.dataset.theme || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      html.dataset.theme = newTheme;
+      localStorage.setItem('theme', newTheme);
+    });
+  }
+};
+
+// Set up save report functionality
+const setupSaveReport = () => {
+  const saveButton = document.getElementById('saveReport');
+  
+  if (saveButton) {
+    saveButton.addEventListener('click', () => {
+      saveAsHTML();
+    });
+  }
+};
+
+// Set up clear console functionality
+const setupClearConsole = () => {
+  const clearButton = document.getElementById('clearConsole');
+  
+  if (clearButton) {
+    clearButton.addEventListener('click', () => {
+      clear();
+    });
+  }
+};
+
+// Initialize UI controls
+document.addEventListener('DOMContentLoaded', () => {
+  setupThemeToggle();
+  setupSaveReport();
+  setupClearConsole();
+});
 
 // Import tinyframejs with error handling
 let DataFrame;
@@ -88,7 +140,17 @@ async function fetchBinanceData() {
 
     // Display data table
     display('## Bitcoin Price Data (Last 30 Days)');
-    view(df.toArray());
+    view(df.toArray(), {
+      filterable: true,
+      columns: [
+        { field: 'date', label: 'Date' },
+        { field: 'open', label: 'Open', align: 'right', render: val => `$${val.toLocaleString()}` },
+        { field: 'high', label: 'High', align: 'right', render: val => `$${val.toLocaleString()}` },
+        { field: 'low', label: 'Low', align: 'right', render: val => `$${val.toLocaleString()}` },
+        { field: 'close', label: 'Close', align: 'right', render: val => `$${val.toLocaleString()}` },
+        { field: 'volume', label: 'Volume', align: 'right', render: val => val.toLocaleString() }
+      ]
+    });
 
     // Display price chart
     display('## Bitcoin Price Chart');

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,14 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   </head>
   <body>
+    <header id="topbar">
+      <h1>DataConsole</h1>
+      <div class="controls">
+        <button id="themeToggle" title="Toggle light/dark theme">🌗 Theme</button>
+        <button id="saveReport" title="Save current state as HTML">💾 Save Report</button>
+        <button id="clearConsole" title="Clear console">🗑️ Clear</button>
+      </div>
+    </header>
     <div id="console"></div>
     <script type="module" src="/index.js"></script>
   </body>
